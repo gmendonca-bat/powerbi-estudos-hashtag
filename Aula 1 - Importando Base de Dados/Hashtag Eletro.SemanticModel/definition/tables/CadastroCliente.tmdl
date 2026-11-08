@@ -1,0 +1,93 @@
+table CadastroCliente
+	lineageTag: 7549c061-e76c-4b43-9f4c-a80526da51cb
+
+	column 'ID Cliente'
+		dataType: string
+		lineageTag: 8f0e4fd5-cc24-418f-ba62-3be45ddea671
+		summarizeBy: none
+		sourceColumn: ID Cliente
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Primeiro Nome'
+		dataType: string
+		lineageTag: d50293eb-e266-4ce5-85da-fbaf4e0e0e4f
+		summarizeBy: none
+		sourceColumn: Primeiro Nome
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sobrenome
+		dataType: string
+		lineageTag: f0f9d06f-7513-491b-b702-f6d06273627e
+		summarizeBy: none
+		sourceColumn: Sobrenome
+
+		annotation SummarizationSetBy = Automatic
+
+	column Email
+		dataType: string
+		lineageTag: 3ecd4584-8c92-4370-8500-3d44f1c2dfa3
+		summarizeBy: none
+		sourceColumn: Email
+
+		annotation SummarizationSetBy = Automatic
+
+	column Genero
+		dataType: string
+		lineageTag: ccafc2b6-5c89-433f-858a-0cfc84f4a1a7
+		summarizeBy: none
+		sourceColumn: Genero
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Nascimento'
+		dataType: string
+		lineageTag: 970e974e-4c3b-4af1-8ef0-92b94065e2c1
+		summarizeBy: none
+		sourceColumn: Data Nascimento
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Num Filhos'
+		dataType: int64
+		formatString: 0
+		lineageTag: a71a7680-4425-4649-b43c-e1bd9750218d
+		summarizeBy: sum
+		sourceColumn: Num Filhos
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nivel Escolar'
+		dataType: string
+		lineageTag: 1262cd6b-c6e2-41ea-9344-fb9cbd06f1b9
+		summarizeBy: none
+		sourceColumn: Nivel Escolar
+
+		annotation SummarizationSetBy = Automatic
+
+	column Documento
+		dataType: string
+		lineageTag: 1f9a9042-a44a-49c3-942f-d5676fc1ee35
+		summarizeBy: none
+		sourceColumn: Documento
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CadastroCliente = m
+		mode: import
+		source =
+				let
+				  Origem = Excel.Workbook(File.Contents("Z:\Hashtag_PowerBI\Aula 1 - Importando Base de Dados\Aula 1 - Importando Base de Dados\Cadastro Clientes.xlsx"), null, true),
+				  #"Navegação 1" = Origem{[Item = "Plan1", Kind = "Sheet"]}[Data],
+				  #"Tipo de coluna alterada" = Table.TransformColumnTypes(#"Navegação 1", {{"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}, {"Column7", type text}, {"Column9", type text}, {"Column11", type text}}, "pt-PT"),
+				  #"Colunas removidas" = Table.RemoveColumns(#"Tipo de coluna alterada", {"Column11", "Column12"}),
+				  #"Linhas em branco removidas" = Table.SelectRows(#"Colunas removidas", each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null}))),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(#"Linhas em branco removidas", [PromoteAllScalars = true]),
+				  #"Tipo de coluna alterada 1" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"Documento", type text}, {"Num Filhos", Int64.Type}, {"ID Cliente", type text}}),
+				  #"Colunas removidas 1" = Table.RemoveColumns(#"Tipo de coluna alterada 1", {"Estado Civil"})
+				in
+				  #"Colunas removidas 1"
+
+	annotation PBI_ResultType = Table
+

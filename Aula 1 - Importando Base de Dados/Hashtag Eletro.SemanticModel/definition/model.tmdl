@@ -1,0 +1,19 @@
+model Model
+	culture: pt-PT
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: pt-BR
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["CadastroCliente"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table CadastroCliente
+
+ref cultureInfo pt-PT
+

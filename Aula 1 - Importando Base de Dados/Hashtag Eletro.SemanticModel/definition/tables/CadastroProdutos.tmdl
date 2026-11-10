@@ -1,0 +1,88 @@
+table CadastroProdutos
+	lineageTag: 8765ec92-a2da-4ab6-943a-c352cf5989e6
+
+	column SKU
+		dataType: string
+		lineageTag: cf17562b-553c-4fc2-a243-e2b580139440
+		summarizeBy: none
+		sourceColumn: SKU
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nome Produto'
+		dataType: string
+		lineageTag: d0fd4ec0-2474-4661-b0b6-f176ff7ef60f
+		summarizeBy: none
+		sourceColumn: Nome Produto
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cor Produto'
+		dataType: string
+		lineageTag: c5932d2e-25c8-4ff5-92e6-6713e9c4a6ad
+		summarizeBy: none
+		sourceColumn: Cor Produto
+
+		annotation SummarizationSetBy = Automatic
+
+	column Marca
+		dataType: string
+		lineageTag: 2ec452c2-2273-4318-98f9-4d1adbc05289
+		summarizeBy: none
+		sourceColumn: Marca
+
+		annotation SummarizationSetBy = Automatic
+
+	column Categoria
+		dataType: string
+		lineageTag: 698ddde4-6290-4705-b784-aadc029e2025
+		summarizeBy: none
+		sourceColumn: Categoria
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Preço Unitario'
+		dataType: double
+		lineageTag: e1747b86-2472-4218-92be-012d9bc8cd98
+		summarizeBy: sum
+		sourceColumn: Preço Unitario
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Custo Unitario'
+		dataType: double
+		lineageTag: e58d5e86-6b5f-4e74-b6c6-d836ca9081c3
+		summarizeBy: sum
+		sourceColumn: Custo Unitario
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Observação
+		dataType: string
+		lineageTag: d9c34235-a772-443f-9f4b-104ca9262a23
+		summarizeBy: none
+		sourceColumn: Observação
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CadastroProdutos = m
+		mode: import
+		source =
+				let
+				  Origem = Excel.Workbook(File.Contents("Z:\Hashtag_PowerBI\Aula 1 - Importando Base de Dados\Base de Dados\Aula 1 - Importando a Base de Dados\Cadastro Produtos.xlsx"), null, true),
+				  #"Navegação 1" = Origem{[Item = "Plan1", Kind = "Sheet"]}[Data],
+				  #"Tipo de coluna alterada" = Table.TransformColumnTypes(#"Navegação 1", {{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}, {"Column7", type text}}, "pt-PT"),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(#"Tipo de coluna alterada", [PromoteAllScalars = true]),
+				  #"Linhas em branco removidas" = Table.SelectRows(#"Cabeçalhos promovidos", each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null}))),
+				  #"Valor substituído" = Table.ReplaceValue(#"Linhas em branco removidas", ".", ",", Replacer.ReplaceText, {"Preço Unitario", "Custo Unitario"}),
+				  #"Tipo de coluna alterada 1" = Table.TransformColumnTypes(#"Valor substituído", {{"Preço Unitario", type number}, {"Custo Unitario", type number}}),
+				  #"Dividir coluna por delimitador" = Table.SplitColumn(#"Tipo de coluna alterada 1", "Produto", Splitter.SplitTextByEachDelimiter({" - "}, QuoteStyle.Csv, true), {"Nome Produto", "Cor Produto"})
+				in
+				  #"Dividir coluna por delimitador"
+
+	annotation PBI_ResultType = Table
+

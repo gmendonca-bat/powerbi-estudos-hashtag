@@ -9,22 +9,6 @@ table CadastroCliente
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'Primeiro Nome'
-		dataType: string
-		lineageTag: d50293eb-e266-4ce5-85da-fbaf4e0e0e4f
-		summarizeBy: none
-		sourceColumn: Primeiro Nome
-
-		annotation SummarizationSetBy = Automatic
-
-	column Sobrenome
-		dataType: string
-		lineageTag: f0f9d06f-7513-491b-b702-f6d06273627e
-		summarizeBy: none
-		sourceColumn: Sobrenome
-
-		annotation SummarizationSetBy = Automatic
-
 	column Email
 		dataType: string
 		lineageTag: 3ecd4584-8c92-4370-8500-3d44f1c2dfa3
@@ -42,12 +26,20 @@ table CadastroCliente
 		annotation SummarizationSetBy = Automatic
 
 	column 'Data Nascimento'
-		dataType: string
+		dataType: dateTime
+		formatString: Long Date
 		lineageTag: 970e974e-4c3b-4af1-8ef0-92b94065e2c1
 		summarizeBy: none
 		sourceColumn: Data Nascimento
 
+		variation Variação
+			isDefault
+			relationship: fba0912c-bf75-4c07-88e5-6fdaddb03952
+			defaultHierarchy: LocalDateTable_8e05b860-04c1-4f70-983b-45e863be5499.'Hierarquia de Datas'
+
 		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	column 'Num Filhos'
 		dataType: int64
@@ -74,20 +66,31 @@ table CadastroCliente
 
 		annotation SummarizationSetBy = Automatic
 
+	column 'Nome Cliente'
+		dataType: string
+		lineageTag: 7b7beff5-4580-48a6-8506-ab8dc3cbfa59
+		summarizeBy: none
+		sourceColumn: Nome Cliente
+
+		annotation SummarizationSetBy = Automatic
+
 	partition CadastroCliente = m
 		mode: import
 		source =
 				let
-				  Origem = Excel.Workbook(File.Contents("Z:\Hashtag_PowerBI\Aula 1 - Importando Base de Dados\Aula 1 - Importando Base de Dados\Cadastro Clientes.xlsx"), null, true),
+				  Origem = Excel.Workbook(File.Contents("Z:\Hashtag_PowerBI\Aula 1 - Importando Base de Dados\Base de Dados\Aula 1 - Importando a Base de Dados\Cadastro Clientes.xlsx"), null, true),
 				  #"Navegação 1" = Origem{[Item = "Plan1", Kind = "Sheet"]}[Data],
 				  #"Tipo de coluna alterada" = Table.TransformColumnTypes(#"Navegação 1", {{"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}, {"Column7", type text}, {"Column9", type text}, {"Column11", type text}}, "pt-PT"),
 				  #"Colunas removidas" = Table.RemoveColumns(#"Tipo de coluna alterada", {"Column11", "Column12"}),
 				  #"Linhas em branco removidas" = Table.SelectRows(#"Colunas removidas", each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null}))),
 				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(#"Linhas em branco removidas", [PromoteAllScalars = true]),
 				  #"Tipo de coluna alterada 1" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"Documento", type text}, {"Num Filhos", Int64.Type}, {"ID Cliente", type text}}),
-				  #"Colunas removidas 1" = Table.RemoveColumns(#"Tipo de coluna alterada 1", {"Estado Civil"})
+				  #"Colunas removidas 1" = Table.RemoveColumns(#"Tipo de coluna alterada 1", {"Estado Civil"}),
+				  #"Tipo de coluna com região alterada" = Table.TransformColumnTypes(#"Colunas removidas 1", {{"Data Nascimento", type date}}, "en-US"),
+				  #"Colunas intercaladas" = Table.CombineColumns(#"Tipo de coluna com região alterada", {"Primeiro Nome", "Sobrenome"}, Combiner.CombineTextByDelimiter(" ", QuoteStyle.None), "Nome Cliente"),
+				  #"Cada palavra em maiúsculas" = Table.TransformColumns(#"Colunas intercaladas", {{"Nome Cliente", each Text.Proper(_), type text}})
 				in
-				  #"Colunas removidas 1"
+				  #"Cada palavra em maiúsculas"
 
 	annotation PBI_ResultType = Table
 

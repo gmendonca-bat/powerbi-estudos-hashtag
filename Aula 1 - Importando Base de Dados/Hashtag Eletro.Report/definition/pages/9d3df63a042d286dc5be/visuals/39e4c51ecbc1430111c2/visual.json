@@ -1,0 +1,122 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "39e4c51ecbc1430111c2",
+  "position": {
+    "x": 632.95081967213116,
+    "y": 298.03278688524591,
+    "z": 0,
+    "height": 411.63934426229508,
+    "width": 653.60655737704917,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "pieChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "CadastroCliente"
+                    }
+                  },
+                  "Property": "Genero"
+                }
+              },
+              "queryRef": "CadastroCliente.Genero",
+              "nativeQueryRef": "Genero",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CadastroCliente"
+                        }
+                      },
+                      "Property": "Nome Cliente"
+                    }
+                  },
+                  "Function": 5
+                }
+              },
+              "queryRef": "CountNonNull(CadastroCliente.Nome Cliente)",
+              "nativeQueryRef": "Contagem de Nome Cliente"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Aggregation": {
+                "Expression": {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "CadastroCliente"
+                      }
+                    },
+                    "Property": "Nome Cliente"
+                  }
+                },
+                "Function": 5
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "47c009ce9a00bb11c730",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "CadastroCliente"
+              }
+            },
+            "Property": "Genero"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "e1dfab2b59e5206c1307",
+        "field": {
+          "Aggregation": {
+            "Expression": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "CadastroCliente"
+                  }
+                },
+                "Property": "Nome Cliente"
+              }
+            },
+            "Function": 5
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

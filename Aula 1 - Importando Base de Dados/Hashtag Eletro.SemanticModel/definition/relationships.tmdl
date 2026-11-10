@@ -1,0 +1,5 @@
+relationship fba0912c-bf75-4c07-88e5-6fdaddb03952
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CadastroCliente.'Data Nascimento'
+	toColumn: LocalDateTable_8e05b860-04c1-4f70-983b-45e863be5499.Date
+

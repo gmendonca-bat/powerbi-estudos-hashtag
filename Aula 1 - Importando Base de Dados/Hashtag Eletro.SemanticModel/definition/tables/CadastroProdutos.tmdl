@@ -33,14 +33,6 @@ table CadastroProdutos
 
 		annotation SummarizationSetBy = Automatic
 
-	column Categoria
-		dataType: string
-		lineageTag: 698ddde4-6290-4705-b784-aadc029e2025
-		summarizeBy: none
-		sourceColumn: Categoria
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'Preço Unitario'
 		dataType: double
 		lineageTag: e1747b86-2472-4218-92be-012d9bc8cd98
@@ -61,11 +53,11 @@ table CadastroProdutos
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column Observação
+	column 'Tipo Produto'
 		dataType: string
-		lineageTag: d9c34235-a772-443f-9f4b-104ca9262a23
+		lineageTag: 8332bc58-5768-41f9-af06-50fe08906485
 		summarizeBy: none
-		sourceColumn: Observação
+		sourceColumn: Tipo Produto
 
 		annotation SummarizationSetBy = Automatic
 
@@ -75,14 +67,17 @@ table CadastroProdutos
 				let
 				  Origem = Excel.Workbook(File.Contents("Z:\Hashtag_PowerBI\Aula 1 - Importando Base de Dados\Base de Dados\Aula 1 - Importando a Base de Dados\Cadastro Produtos.xlsx"), null, true),
 				  #"Navegação 1" = Origem{[Item = "Plan1", Kind = "Sheet"]}[Data],
-				  #"Tipo de coluna alterada" = Table.TransformColumnTypes(#"Navegação 1", {{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}, {"Column7", type text}}, "pt-PT"),
+				  #"Tipo de coluna alterada" = Table.TransformColumnTypes(#"Navegação 1", {{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}}, "pt-PT"),
 				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(#"Tipo de coluna alterada", [PromoteAllScalars = true]),
 				  #"Linhas em branco removidas" = Table.SelectRows(#"Cabeçalhos promovidos", each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null}))),
 				  #"Valor substituído" = Table.ReplaceValue(#"Linhas em branco removidas", ".", ",", Replacer.ReplaceText, {"Preço Unitario", "Custo Unitario"}),
 				  #"Tipo de coluna alterada 1" = Table.TransformColumnTypes(#"Valor substituído", {{"Preço Unitario", type number}, {"Custo Unitario", type number}}),
-				  #"Dividir coluna por delimitador" = Table.SplitColumn(#"Tipo de coluna alterada 1", "Produto", Splitter.SplitTextByEachDelimiter({" - "}, QuoteStyle.Csv, true), {"Nome Produto", "Cor Produto"})
+				  #"Dividir coluna por delimitador" = Table.SplitColumn(#"Tipo de coluna alterada 1", "Produto", Splitter.SplitTextByEachDelimiter({" - "}, QuoteStyle.Csv, true), {"Nome Produto", "Cor Produto"}),
+				    #"Colunas Removidas" = Table.RemoveColumns(#"Dividir coluna por delimitador",{"Observação"})
 				in
-				  #"Dividir coluna por delimitador"
+				    #"Colunas Removidas"
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegação
 

@@ -1,0 +1,82 @@
+table CadastroLoja
+	lineageTag: fba297ab-02f2-4e4a-b166-6861251df9e0
+
+	column 'ID Loja'
+		dataType: int64
+		formatString: 0
+		lineageTag: 4ef8597e-3770-40f1-9a7d-a303e7d60e2c
+		summarizeBy: sum
+		sourceColumn: ID Loja
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nome da Loja'
+		dataType: string
+		lineageTag: 6b1e2c9f-be83-4f23-b22e-fdfdf1313875
+		summarizeBy: none
+		sourceColumn: Nome da Loja
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Nome Gerente'
+		dataType: string
+		lineageTag: 53a0bb51-cca0-4795-8b7e-207e0fa69591
+		summarizeBy: none
+		sourceColumn: Nome Gerente
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quantidade Colaboradores'
+		dataType: int64
+		formatString: 0
+		lineageTag: 35680677-24b2-42fd-9d61-aa359e1321cc
+		summarizeBy: sum
+		sourceColumn: Quantidade Colaboradores
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tipo
+		dataType: string
+		lineageTag: 447f8d0e-a872-49ae-b0b1-22005a7af878
+		summarizeBy: none
+		sourceColumn: Tipo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'id Localidade'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7410e3b6-6727-4cda-9058-33a450e1ba10
+		summarizeBy: sum
+		sourceColumn: id Localidade
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Documento Gerente'
+		dataType: int64
+		formatString: 0
+		lineageTag: 710c1d9a-97d6-4f42-9048-074b40d42f09
+		summarizeBy: sum
+		sourceColumn: Documento Gerente
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CadastroLoja = m
+		mode: import
+		source =
+				let
+				    Origem = Excel.Workbook(File.Contents("Z:\Hashtag_PowerBI\Aula 1 - Importando Base de Dados\Base de Dados\Aula 1 - Importando a Base de Dados\Cadastro Lojas.xlsx"), null, true),
+				    Plan1_Sheet = Origem{[Item="Plan1",Kind="Sheet"]}[Data],
+				    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(Plan1_Sheet, [PromoteAllScalars=true]),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"ID Loja", Int64.Type}, {"Nome da Loja", type text}, {"Quantidade Colaboradores", Int64.Type}, {"Tipo", type text}, {"id Localidade", Int64.Type}, {"Gerente Loja", type text}, {"Documento Gerente", Int64.Type}}),
+				    #"Texto Depois do Delimitador Extraído" = Table.TransformColumns(#"Tipo Alterado", {{"Nome da Loja", each Text.AfterDelimiter(_, " "), type text}}),
+				    #"Adicionar Coluna Personalizada" = Table.AddColumn(#"Texto Depois do Delimitador Extraído", "Nome Gerente", each let splitGerenteLoja = Splitter.SplitTextByDelimiter(", ", QuoteStyle.None)([Gerente Loja]) in Text.Combine({splitGerenteLoja{1}?, " ", splitGerenteLoja{0}?}), type text),
+				    #"Colunas Removidas" = Table.RemoveColumns(#"Adicionar Coluna Personalizada",{"Gerente Loja"}),
+				    #"Colunas Reordenadas" = Table.ReorderColumns(#"Colunas Removidas",{"ID Loja", "Nome da Loja", "Nome Gerente", "Quantidade Colaboradores", "Tipo", "id Localidade", "Documento Gerente"})
+				in
+				    #"Colunas Reordenadas"
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+
